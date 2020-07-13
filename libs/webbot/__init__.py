@@ -1,0 +1,1 @@
+from .webbot import Browser
