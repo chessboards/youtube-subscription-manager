@@ -46,6 +46,10 @@ Allowing sync is also required so that the sign in works for the scope of the en
     - Could this have been the result of your internet connection at the time?
 
     - Have you selected the correct brand account?
+
+* Google services like Youtube comments, Google classroom aren't working!
+
+    - Visit the pinned issue under Issues at the top of the page. There you will find instructions.
 # Upcoming??
 
 * Webcrawl option for export if xml download button breaks (v2)
