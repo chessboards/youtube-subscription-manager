@@ -22,7 +22,8 @@ def introduction():
 
     Enter any character to proceed: \n> """)
 
-    global web
+    global web   #object used in subscribe()
+    global bell  #bool used in subscribe()
 
     web = Browser()
     print("Browser window created.\n")
@@ -35,7 +36,7 @@ def introduction():
 
     confirm = input("\nIf you have multiple brand accounts, please choose the account you wish to use by clicking your icon in the top right. In either case, please any character to proceed:\n> ")
 
-
+    bell = input("\nWould you like to enable push notifications when you subscribe?(y/n)\n> ")
 
 def _read():
     """Creates a feedable value to use in the parser"""
@@ -78,6 +79,24 @@ def can_subscribe_check():
         else:
             return 0
 
+
+def bell_check():
+    """Returns a boolean based upon if push notifications can be enabled."""
+    #https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors    Detects the state of bell notifications.
+    if web.exists(tag='button', css_selector='[aria-label*="Current setting is personalized notifications. Tap to change your notification setting for"]',loose_match=False):
+        return 1 # can enable push notifications
+    else:
+        return 0 # already enabled
+
+
+def enable_bell_notifications():
+    """Enables all bell notifications for a subscription. The print is a"""
+    if bell_check(): #push notification. Even if already subscribed, bell notifications may not be enabled.
+        web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False)
+        print("\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) )
+    else:
+        print("\t%sPush notifications %s.%s"  %  (fg(11), 'already enabled', attr(0)) )
+
 def subscribe():
     """Opens every url in global subscription_urls, and checks if subscribable. If so, subscribes."""
     print("Youtube throttles subscription requests, most likely to prevent bots from creating false popularity. The process of importing your subscriptions may take awhile.\n")
@@ -89,17 +108,34 @@ def subscribe():
         web.go_to(url)
         if can_subscribe_check() == 0:
             web.click(text='SUBSCRIBE', tag='paper-button', id='button', classname='style-blue-text', number=1, loose_match=False, multiple=False)
-            print("\t%s(%i/%i)%s Subscribed." % (fg(40), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ) ) # though outdated, the quickest/simplest format.
+            # end='' to append the next print function, as one line would be way too long
+            print("\t%s(%i/%i)%s Subscribed."  %  (fg(40), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ), end="") # though outdated, the quickest/simplest format.
+
+            if bell_check():
+                web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False)
+                print("\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) )
+            else:
+                print("\t%sPush notifications %s.%s"  %  (fg(11), 'already enabled', attr(0)) )
+
             sleep(randint(4,9)) # simulate human clickage delay
 
+
         elif can_subscribe_check() == 1:
-            print("\t%s(%i/%i)%s Cannot subscribe: already subscribed." % (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ) )
+            # end='' to append the next print function, as one line would be way too long
+            print("\t%s(%i/%i)%s Cannot subscribe: already subscribed."  %  (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ), end=""),
+
+            if bell_check(): # push notification. Even if already subscribed, bell notifications may not be enabled.
+                web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False)
+                print("\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) )
+            else:
+                print("\t%sPush notifications %s.%s"  %  (fg(11), 'already enabled', attr(0)) )
 
         elif can_subscribe_check() == 2:
-            print("\t%s(%i/%i) Cannot subscribe: channel terminated.%s" % (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ) )
+            print("\t%s(%i/%i) Cannot subscribe: channel terminated.%s"  %  (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ) )
             pass
+
         elif can_subscribe_check() == 3:
-            print("\t%s(%i/%i) Cannot subscribe: requests being throttled.%s" % (fg(209), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ) )
+            print("\t%s(%i/%i) Cannot subscribe: requests being throttled.%s"  %  (fg(209), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ) )
             
     print(f"{fg(40)}Done!\n{attr(0)}")
     
