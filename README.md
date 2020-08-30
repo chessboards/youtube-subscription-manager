@@ -59,6 +59,7 @@ Allowing sync is also required so that the sign in works for the scope of the en
 ---
 * Optimizations
 * readme flare
+* easy to read comments/docstrings
 
 # Credits
 This project is built using [webbot](https://github.com/nateshmbhat/webbot), a wrapper for Selenium browser automation. The license used is inherited from webbot.
