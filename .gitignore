@@ -1,2 +1,5 @@
 __pycache__/
-.pyc
+*.pyc
+*.log
+/ysm_env/
+subscription_manager.xml
