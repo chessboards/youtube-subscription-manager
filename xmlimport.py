@@ -9,6 +9,7 @@ from libs.colored import fg, bg, attr
 
 # functional programming
 #option = "Is your subscription file exported from youtube, or webcrawled?"
+# comment the code my friend!!! update docstrings!!!
 def introduction():
     """Introduces the user to the program, creates browser window"""
     confirm = input(f"""
@@ -80,23 +81,33 @@ def can_subscribe_check():
             return 0
 
 
-def bell_check():
-    """Returns a boolean based upon if push notifications can be enabled."""
-    #https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors    Detects the state of bell notifications.
-    if web.exists(tag='button', css_selector='[aria-label*="Current setting is personalized notifications. Tap to change your notification setting for"]',loose_match=False):
+def _bell_check():
+    """Returns a boolean based upon if push notifications can be enabled. Called by _enable_bell_notifications()."""
+    #https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors if broken
+    if web.exists(tag='button', css_selector='[aria-label*="Current setting is personalized notifications. Tap to change your notification setting for"]',loose_match=False): #aria-label differs based on bell state
         return 1 # can enable push notifications
     else:
         return 0 # already enabled
 
 
-def enable_bell_notifications():
-    """Enables all bell notifications for a subscription. The print is a"""
-    if bell_check(): #push notification. Even if already subscribed, bell notifications may not be enabled.
-        web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False)
-        print("\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) )
-    else:
-        print("\t%sPush notifications %s.%s"  %  (fg(11), 'already enabled', attr(0)) )
+# can it be optimized? checking every subscription for if y is chosen may cause lag.
+def _enable_bell_notifications():
+    """Enables all bell notifications for a subscription. Returns message of type string based on the status of push notifications; if the user chose not to enable them, returns false.
+    Called by subscribe()."""
 
+    if bell == 'y':
+        if _bell_check() != 0: # push notifications. Even if already subscribed, bell notifications may not be enabled.
+            web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False) # choose all push notifications
+            message = "\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) 
+        else:
+            message = "\t%sPush notifications %s.%s"  %  (fg(45), 'already enabled', attr(0)) 
+
+        return message
+    else:
+        return 0 # Is bell == 'n'-- or rather the user chose not to enable bell notifications?--, if so return false.
+
+
+# optimize for unneeded != characters
 def subscribe():
     """Opens every url in global subscription_urls, and checks if subscribable. If so, subscribes."""
     print("Youtube throttles subscription requests, most likely to prevent bots from creating false popularity. The process of importing your subscriptions may take awhile.\n")
@@ -108,27 +119,30 @@ def subscribe():
         web.go_to(url)
         if can_subscribe_check() == 0:
             web.click(text='SUBSCRIBE', tag='paper-button', id='button', classname='style-blue-text', number=1, loose_match=False, multiple=False)
-            # end='' to append the next print function, as one line would be way too long
-            print("\t%s(%i/%i)%s Subscribed."  %  (fg(40), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ), end="") # though outdated, the quickest/simplest format.
 
-            if bell_check():
-                web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False)
-                print("\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) )
-            else:
-                print("\t%sPush notifications %s.%s"  %  (fg(11), 'already enabled', attr(0)) )
+            message = "\t%s(%i/%i)%s Subscribed."  %  (fg(40), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) )
+            message2 = _enable_bell_notifications()
 
-            sleep(randint(4,9)) # simulate human clickage delay
+            if message2 != 0:
+                message += message2
+
+            print(message) # confirmation
+
+            sleep(randint(4,9)) # simulate human clickage delay to attempt to prevent throttling
 
 
         elif can_subscribe_check() == 1:
             # end='' to append the next print function, as one line would be way too long
-            print("\t%s(%i/%i)%s Cannot subscribe: already subscribed."  %  (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ), end=""),
+            message = "\t%s(%i/%i)%s Cannot subscribe: already subscribed."  %  (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) )
+            message2 = _enable_bell_notifications()
 
-            if bell_check(): # push notification. Even if already subscribed, bell notifications may not be enabled.
-                web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False)
-                print("\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) )
-            else:
-                print("\t%sPush notifications %s.%s"  %  (fg(11), 'already enabled', attr(0)) )
+            if message2 != 0:
+                message += message2
+
+            print(message) # confirmation
+
+            sleep(randint(4,9)) # simulate human clickage delayto attempt to prevent throttling
+
 
         elif can_subscribe_check() == 2:
             print("\t%s(%i/%i) Cannot subscribe: channel terminated.%s"  %  (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) ) )
@@ -141,7 +155,6 @@ def subscribe():
     
     print("You may now exit the browser window.")
     print(f"The subscriptions should now be imported to your account. Thank you for using my tool! {fg(192)}:-]{attr(0)}")
-
 
 
 
