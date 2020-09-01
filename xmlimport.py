@@ -4,12 +4,12 @@ from htmlparser import htxmlParser
 from time import sleep
 from random import randint
 import os
+import codecs # when opening file, convert to unicode to prevent errors with multi-lingual keyboards or channel names that have strange characters
 
 from libs.colored import fg, bg, attr
 
-# functional programming
-#option = "Is your subscription file exported from youtube, or webcrawled?"
-# comment the code my friend!!! update docstrings!!!
+# functional programming for now v1
+#option = "Is your subscription file exported from youtube, or webcrawled?" v2 example
 def introduction():
     """Introduces the user to the program, creates browser window"""
     confirm = input(f"""
@@ -45,7 +45,7 @@ def _read():
 
     print("\nReading file contents...")
 
-    with open(working_dir + r"\subscription_manager.xml", 'r') as fileobject:
+    with codecs.open(working_dir + r"\subscription_manager.xml", 'r', encoding='utf-8') as fileobject:
         global contents
 
         contents = fileobject.read()
