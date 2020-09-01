@@ -16,4 +16,4 @@ class htxmlParser(HTMLParser):
         """"Appends xmlurl values from an xml list of subscriptions to subscription_urls."""
         for datum in attrs:
             if datum[0] == 'xmlurl':
-               self.subscription_urls.append( "https://www.youtube.com/channel/" + self._format_channelid(datum[1]) + "?sub_confirmation=1" )
+                self.subscription_urls.append( "https://www.youtube.com/channel/" + self._format_channelid(datum[1]) + "?sub_confirmation=1" )
