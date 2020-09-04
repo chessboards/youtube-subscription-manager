@@ -1,3 +1,4 @@
+![Logo](https://raw.githubusercontent.com/chessboards/youtube-subscription-manager/logo.png)
 # youtube-subscriptions-manager
 Manually opening new tabs, signing into your new account, subscribing, browser lag, closing tabs, repeat. If you've ever experienced this process, you know it's time consuming. 
 
