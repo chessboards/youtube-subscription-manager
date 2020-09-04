@@ -38,6 +38,8 @@ def introduction():
     confirm = input("\nIf you have multiple brand accounts, please choose the account you wish to use by clicking your icon in the top right. In either case, please any character to proceed:\n> ")
 
     bell = input("\nWould you like to enable push notifications when you subscribe?(y/n)\n> ")
+    if bell.lower() != 'y' and bell.lower() != 'n': # Ensure input is y/n. If not, raise valueerror. Handled near eof
+        raise ValueError()
 
 def _read():
     """Creates a feedable value to use in the parser"""
@@ -83,11 +85,16 @@ def can_subscribe_check():
 
 def _bell_check():
     """Returns a boolean based upon if push notifications can be enabled. Called by _enable_bell_notifications()."""
-    #https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors if broken
-    if web.exists(tag='button', css_selector='[aria-label*="Current setting is personalized notifications. Tap to change your notification setting for"]',loose_match=False): #aria-label differs based on bell state
-        return 1 # can enable push notifications
+    #https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors and https://www.w3schools.com/cssref/css_selectors.asp if broken
+
+    # ERROR: the method should detect based on the aria-label css_selector if the button exists. Either it is youtube or the webbot library, but the css selector doesn't seem to work here. Tested in an
+    #environment with the button's element and a JS querySelector with the same css_selector, it works fine.
+    return 1 # returning 1 goes through many unneeded clicks, but nonetheless sets all subscriptions to all notifications.
+
+    if web.exists(tag='button', classname='yt-icon-button', css_selector='button[aria-label*="Current setting is all notifications."]', number=1, loose_match=False): #aria-label differs based on bell state
+        return 0 # can't enable push notifications
     else:
-        return 0 # already enabled
+        return 1
 
 
 # can it be optimized? checking every subscription for if y is chosen may cause lag.
@@ -95,16 +102,15 @@ def _enable_bell_notifications():
     """Enables all bell notifications for a subscription. Returns message of type string based on the status of push notifications; if the user chose not to enable them, returns false.
     Called by subscribe()."""
 
-    if bell == 'y':
-        if _bell_check() != 0: # push notifications. Even if already subscribed, bell notifications may not be enabled.
-            web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False) # choose all push notifications
-            message = "\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) 
-        else:
-            message = "\t%sPush notifications %s.%s"  %  (fg(45), 'already enabled', attr(0)) 
-
-        return message
+    if _bell_check() == True: # push notifications. Even if already subscribed, bell notifications may not be enabled.
+        web.click(tag='div', css_selector='#notification-preference-button', number=1, loose_match=False, multiple=False) # dropdown
+        web.click(text='All', tag='yt-formatted-string', classname='ytd-menu-service-item-renderer', number=1, loose_match=False, multiple=False) # choose all push notifications
+        message = "\t%sPush notifications %s.%s"  %  (fg(45), 'enabled', attr(0)) 
     else:
-        return 0 # Is bell == 'n'-- or rather the user chose not to enable bell notifications?--, if so return false.
+        message = "\t%sPush notifications %s.%s"  %  (fg(221), 'already enabled', attr(0)) 
+
+    return message
+
 
 
 # optimize for unneeded != characters
@@ -121,9 +127,10 @@ def subscribe():
             web.click(text='SUBSCRIBE', tag='paper-button', id='button', classname='style-blue-text', number=1, loose_match=False, multiple=False)
 
             message = "\t%s(%i/%i)%s Subscribed."  %  (fg(40), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) )
-            message2 = _enable_bell_notifications()
 
-            if message2 != 0:
+            if bell == 'y': # if user chose to enable push notifications
+                message2 = _enable_bell_notifications()
+
                 message += message2
 
             print(message) # confirmation
@@ -132,7 +139,6 @@ def subscribe():
 
 
         elif can_subscribe_check() == 1:
-            # end='' to append the next print function, as one line would be way too long
             message = "\t%s(%i/%i)%s Cannot subscribe: already subscribed."  %  (fg(196), subscription_urls.index(url)+1, len(subscription_urls)+1, attr(0) )
             message2 = _enable_bell_notifications()
 
@@ -141,7 +147,8 @@ def subscribe():
 
             print(message) # confirmation
 
-            sleep(randint(4,9)) # simulate human clickage delayto attempt to prevent throttling
+            # why no delay? I suppose subscribing is a more suspicious request than enabling push notifications, but I'm not sure if they both count as the same type of request.
+            # also speed
 
 
         elif can_subscribe_check() == 2:
@@ -166,6 +173,8 @@ def main():
         subscribe()
     except FileNotFoundError:
         print("\nError: subscription_manager.xml was not found. Did you place it in the same directory as xmlimport.py?")
+    except ValueError:
+        print("\nError: Choice of push notifications must be 'y' or 'n'.")
     except Exception as e:
         print(f"\n[!] Uncaught Error: {e}")
 
