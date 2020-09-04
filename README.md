@@ -1,6 +1,7 @@
 <p align="center">
   <img src="/logo.png" alt="Logo" />
 </p>
+
 # youtube-subscription-manager
 Manually opening new tabs, signing into your new account, subscribing, browser lag, closing tabs, repeat. If you've ever experienced this process, you know it's time consuming. 
 
