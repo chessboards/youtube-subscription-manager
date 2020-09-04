@@ -50,6 +50,10 @@ Allowing sync is also required so that the sign in works for the scope of the en
 * Google services like Youtube comments, Google classroom aren't working!
 
     - Visit the pinned issue under Issues at the top of the page. There you will find instructions.
+
+
+If you have any other questions or problems, refer to the Issues tab. If there isn't an issue already created, feel free to do so.
+
 # Upcoming??
 
 * Webcrawl option for export if xml download button breaks (v2)
