@@ -55,7 +55,10 @@ Allowing sync is also required so that the sign in works for the scope of the en
 
     - Visit the pinned issue under Issues at the top of the page. There you will find instructions.
 
+* `Push notification enabled.` is displayed even when the channel already has them enabled.
 
+    - Currently the css selector to detect whether or not that is the case is broken. Either it is Youtube blocking such a search, or the library being used.
+    
 If you have any other questions or problems, refer to the Issues tab. If there isn't an issue already created, feel free to do so.
 
 # Upcoming??
