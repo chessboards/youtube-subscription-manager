@@ -58,6 +58,10 @@ Allowing sync is also required so that the sign in works for the scope of the en
 * `Push notifications enabled.` is displayed even when the channel already has them enabled.
 
     - Currently the css selector to detect whether or not that is the case is broken. Either it is Youtube blocking such a search, or the library being used.
+
+* What version of Python was this project created in?
+
+    - Python v3.8.5
     
 If you have any other questions or problems, refer to the Issues tab. If there isn't an issue already created, feel free to do so.
 
